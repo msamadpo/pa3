@@ -1,0 +1,15 @@
+{
+    "tasks": [
+        {
+            "type": "shell",
+            "label": "build compress",
+            "command": "cd build && if ls | grep Makefile; then echo using make.. && cmake -DCMAKE_BUILD_TYPE=Debug .. && make compress.cpp.executable; else echo using ninja... && ninja src/compress.cpp.executable; fi;"
+        },
+        {
+            "type": "shell",
+            "label": "build active file",
+            "command": "cd build && if ls | grep Makefile; then echo using make... && cmake -DCMAKE_BUILD_TYPE=Debug .. && make ${fileBasename}.executable; else echo using ninja... && ninja ${relativeFile}.executable; fi;"
+        }
+    ],
+    "version": "2.0.0"
+}
