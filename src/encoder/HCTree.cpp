@@ -5,7 +5,8 @@
  */
 #include "HCTree.hpp"
 
-typedef std::priority_queue<HCNode*, std::vector<HCNode*>, HCNodePtrComp> node_heap;
+typedef std::priority_queue<HCNode*, std::vector<HCNode*>, HCNodePtrComp>
+    node_heap;
 
 HCTree::HCTree() {
     this->root = nullptr;
@@ -17,17 +18,17 @@ HCTree::~HCTree() {}
 
 /* TODO */
 void HCTree::build(const vector<unsigned int>& freqs) {
-    auto heapOfNodes = node_heap();      //READ
-    for(int i =0; i<freqs.size(), i++){
-        if(freqs.at(i) > 0 ) {
+    auto heapOfNodes = node_heap();  // READ
+    for (int i = 0; i < freqs.size(), i++) {
+        if (freqs.at(i) > 0) {
             auto nodeTree = new HCNode(freqs.at(i), i);
             heapOfNodes.push(nodeTree);
         }
     }
-    if(node_heap.size() == 0){
+    if (node_heap.size() == 0) {
         return;
     }
-    if(node_heap.size() == 1){
+    if (node_heap.size() == 1) {
         auto ofNode = heapOfNodes.top();
         heapOfNodes.pop();
         auto parentNode = new HCNode(ofNode->count, ofNode->symbol);
@@ -35,7 +36,7 @@ void HCTree::build(const vector<unsigned int>& freqs) {
         this->leaves.push_back(ofNode);
         return;
     }
-    while(HC_queue.size() > 1 ){
+    while (node_heap.size() > 1) {
         auto leftNode = heapOfNodes.top();
         heapOfNodes.pop();
         auto rightNode = heapOfNodes.top();
@@ -45,16 +46,15 @@ void HCTree::build(const vector<unsigned int>& freqs) {
         parentNode->c0 = leftNode;
         parentNode->c1 = rightNode;
         heapOfNodes.push(parentNode);
-        if(leftNode->c0 == NULL && leftNode->c1 == NULL){
+        if (leftNode->c0 == NULL && leftNode->c1 == NULL) {
             this->leaves.push_back(leftNode);
         }
-        if(rightNode->c0 == NULL && rightNode->c1 == NULL){
+        if (rightNode->c0 == NULL && rightNode->c1 == NULL) {
             this->leaves.push_back(rightNode);
         }
     }
     this->root = heapOfNodes.top();
     heapOfNodes.pop();
-
 }
 
 /* TODO */
@@ -62,7 +62,7 @@ void HCTree::build(const vector<unsigned int>& freqs) {
 
 /* TODO */
 void HCTree::encode(byte symbol, ostream& out) const {
-   // for(int i=0; i < this->leaves.size)
+    // for(int i=0; i < this->leaves.size)
 }
 
 /* TODO */
