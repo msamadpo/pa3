@@ -3,7 +3,7 @@ project(pa3_huffman)
 
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage -fprofile-arcs -ftest-coverage")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage -fprofile-arcs -ftest-coverage -g")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # === src dependencies ===

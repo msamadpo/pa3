@@ -33,7 +33,7 @@ void HCTree::build(const vector<unsigned int>& freqs) {
         heapOfNodes.pop();
         auto parentNode = new HCNode(ofNode->count, ofNode->symbol);
         parentNode->c0 = ofNode;
-        this->leaves.push_back(ofNode);
+        this->leaves.at(ofNode->symbol) = ofNode;
         return;
     }
     while (heapOfNodes.size() > 1) {
@@ -47,10 +47,10 @@ void HCTree::build(const vector<unsigned int>& freqs) {
         parentNode->c1 = rightNode;
         heapOfNodes.push(parentNode);
         if (leftNode->c0 == NULL && leftNode->c1 == NULL) {
-            this->leaves.push_back(leftNode);
+            this->leaves.at(leftNode->symbol) = leftNode;
         }
         if (rightNode->c0 == NULL && rightNode->c1 == NULL) {
-            this->leaves.push_back(rightNode);
+            this->leaves.at(rightNode->symbol) = rightNode;
         }
     }
     this->root = heapOfNodes.top();
@@ -63,14 +63,14 @@ void HCTree::build(const vector<unsigned int>& freqs) {
 /* TODO */
 void HCTree::encode(byte symbol, ostream& out) const {
     auto listOfChars = new vector<char>();
-    HCNode* ofLeaf;
+    HCNode* ofLeaf = nullptr;
     for (int i = 0; i < this->leaves.size(); i++) {
         if (this->leaves.at(i)->symbol == symbol) {
             ofLeaf = this->leaves.at(i);
             break;
         }
     }
-    if (ofLeaf == NULL) {
+    if (ofLeaf == nullptr) {
         return;
     }
     while (1) {
@@ -94,10 +94,24 @@ void HCTree::encode(byte symbol, ostream& out) const {
             out.put(atIndex);
         }
     }
+    delete listOfChars;
 }
 
 /* TODO */
 // byte HCTree::decode(BitInputStream& in) const { return ' '; }
 
 /* TODO */
-byte HCTree::decode(istream& in) const { return ' '; }
+byte HCTree::decode(istream& in) const {
+    auto currNode = this->root;
+    unsigned char ofCurrent = ' ';
+    while (currNode->c0 != NULL && currNode->c1 != NULL) {
+        ofCurrent = in.get();
+        cout << ofCurrent << endl;
+        if (ofCurrent == '0') {
+            currNode = currNode->c0;
+        } else if (ofCurrent == '1') {
+            currNode = currNode->c1;
+        }
+    }
+    return currNode->symbol;
+}

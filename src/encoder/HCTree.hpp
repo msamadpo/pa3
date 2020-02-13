@@ -23,12 +23,10 @@ class HCTree {
 
   public:
     /* TODO: add function header and implement */
-    HCTree() {}
+    HCTree();
 
     /* TODO: add function header */
-    ~HCTree() {
-
-      auto tree = this->    }
+    ~HCTree();
 
     /* TODO: add function header */
     void build(const vector<unsigned int>& freqs);
