@@ -10,18 +10,22 @@ typedef std::priority_queue<HCNode*, std::vector<HCNode*>, HCNodePtrComp>
 
 HCTree::HCTree() {
     this->root = nullptr;
-    this->leaves;
+    this->leaves = vector<HCNode*>(256);
 }
 
 /* TODO */
-HCTree::~HCTree() {}
+HCTree::~HCTree() {
+    auto currentNode = this->root;
+    deleteAll(currentNode);
+}
 
 /* TODO */
 void HCTree::build(const vector<unsigned int>& freqs) {
     auto heapOfNodes = node_heap();  // READ
     for (int i = 0; i < freqs.size(); i++) {
         if (freqs.at(i) > 0) {
-            auto nodeTree = new HCNode(freqs.at(i), i);
+            unsigned char ofNewNode = i;
+            auto nodeTree = new HCNode(freqs.at(i), ofNewNode);
             heapOfNodes.push(nodeTree);
         }
     }
@@ -33,7 +37,9 @@ void HCTree::build(const vector<unsigned int>& freqs) {
         heapOfNodes.pop();
         auto parentNode = new HCNode(ofNode->count, ofNode->symbol);
         parentNode->c0 = ofNode;
+        ofNode->p = parentNode;
         this->leaves.at(ofNode->symbol) = ofNode;
+        this->root = parentNode;
         return;
     }
     while (heapOfNodes.size() > 1) {
@@ -45,6 +51,8 @@ void HCTree::build(const vector<unsigned int>& freqs) {
         auto parentNode = new HCNode(newFreq, leftNode->symbol);
         parentNode->c0 = leftNode;
         parentNode->c1 = rightNode;
+        leftNode->p = parentNode;
+        rightNode->p = parentNode;
         heapOfNodes.push(parentNode);
         if (leftNode->c0 == NULL && leftNode->c1 == NULL) {
             this->leaves.at(leftNode->symbol) = leftNode;
@@ -65,7 +73,7 @@ void HCTree::encode(byte symbol, ostream& out) const {
     auto listOfChars = new vector<char>();
     HCNode* ofLeaf = nullptr;
     for (int i = 0; i < this->leaves.size(); i++) {
-        if (this->leaves.at(i)->symbol == symbol) {
+        if ((unsigned char)i == symbol) {
             ofLeaf = this->leaves.at(i);
             break;
         }
@@ -91,7 +99,7 @@ void HCTree::encode(byte symbol, ostream& out) const {
     } else {
         for (int i = listOfChars->size() - 1; i >= 0; i--) {
             char atIndex = listOfChars->at(i);
-            out.put(atIndex);
+            out << atIndex;
         }
     }
     delete listOfChars;
@@ -103,10 +111,9 @@ void HCTree::encode(byte symbol, ostream& out) const {
 /* TODO */
 byte HCTree::decode(istream& in) const {
     auto currNode = this->root;
-    unsigned char ofCurrent = ' ';
+    unsigned char ofCurrent;
     while (currNode->c0 != NULL && currNode->c1 != NULL) {
         ofCurrent = in.get();
-        cout << ofCurrent << endl;
         if (ofCurrent == '0') {
             currNode = currNode->c0;
         } else if (ofCurrent == '1') {
@@ -114,4 +121,14 @@ byte HCTree::decode(istream& in) const {
         }
     }
     return currNode->symbol;
+}
+
+void HCTree::deleteAll(HCNode* root) {
+    if (root == NULL) {
+        return;
+    } else {
+        deleteAll(root->c0);
+        deleteAll(root->c1);
+    }
+    delete root;
 }
