@@ -21,6 +21,8 @@ class HCTree {
     HCNode* root;            // the root of HCTree
     vector<HCNode*> leaves;  // a vector storing pointers to all leaf HCNodes
 
+    void deleteAll(HCNode* root);
+
   public:
     /* TODO: add function header and implement */
     HCTree();
