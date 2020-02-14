@@ -20,6 +20,14 @@ void pseudoCompression(string inFileName, string outFileName) {
     unsigned char nextChar;
     int nextByte;
     ofInput.open(inFileName, ios::binary);
+    if (ofInput.peek() == EOF) {
+        ofInput.close();
+        ofstream ofOutput;
+        ofOutput.open(outFileName);
+        ofOutput.close();
+        delete ofAllChars;
+        return;
+    }
     while ((nextByte = ofInput.get()) != EOF) {
         nextChar = (unsigned char)nextByte;
         ofChars.at(nextChar)++;
@@ -27,7 +35,7 @@ void pseudoCompression(string inFileName, string outFileName) {
     ofInput.close();
     ofAllChars->build(ofChars);
     ofstream ofOutput;
-    ofOutput.open(outFileName);
+    ofOutput.open(outFileName, ios::trunc);
     for (int i = 0; i < ofChars.size(); i++) {
         unsigned int ofIndex = ofChars.at(i);
         ofOutput << ofIndex << endl;
@@ -71,5 +79,12 @@ int main(int argc, char* argv[]) {
 
     string ofInputName = argv[2];
     string ofOutputName = argv[3];
+    if (FileUtils::isEmptyFile(ofInputName)) {
+        ofstream ofOutput;
+        ofOutput.open(ofOutputName, ios::trunc);
+        ofOutput.close();
+        return 0;
+    }
     pseudoCompression(ofInputName, ofOutputName);
+    return 0;
 }
