@@ -17,6 +17,7 @@ HCTree::HCTree() {
 HCTree::~HCTree() {
     auto currentNode = this->root;
     deleteAll(currentNode);
+    this->leaves.clear();
 }
 
 /* TODO */
@@ -102,6 +103,7 @@ void HCTree::encode(byte symbol, ostream& out) const {
             out << atIndex;
         }
     }
+    ofLeaf = nullptr;
     delete listOfChars;
 }
 
@@ -112,7 +114,10 @@ void HCTree::encode(byte symbol, ostream& out) const {
 byte HCTree::decode(istream& in) const {
     auto currNode = this->root;
     unsigned char ofCurrent;
-    while (currNode->c0 != NULL && currNode->c1 != NULL) {
+    while (1) {
+        if (currNode->c0 == NULL && currNode->c1 == NULL) {
+            break;
+        }
         ofCurrent = in.get();
         if (ofCurrent == '0') {
             currNode = currNode->c0;
