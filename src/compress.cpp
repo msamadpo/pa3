@@ -20,14 +20,6 @@ void pseudoCompression(string inFileName, string outFileName) {
     unsigned char nextChar;
     int nextByte;
     ofInput.open(inFileName, ios::binary);
-    if (ofInput.peek() == EOF) {
-        ofInput.close();
-        ofstream ofOutput;
-        ofOutput.open(outFileName);
-        ofOutput.close();
-        delete ofAllChars;
-        return;
-    }
     while ((nextByte = ofInput.get()) != EOF) {
         nextChar = (unsigned char)nextByte;
         ofChars.at(nextChar)++;
