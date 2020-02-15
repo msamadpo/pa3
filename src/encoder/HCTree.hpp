@@ -8,6 +8,7 @@
 
 #include <fstream>
 #include <queue>
+#include <unordered_map>
 #include <vector>
 // #include "BitInputStream.hpp"
 // #include "BitOutputStream.hpp"
@@ -20,6 +21,7 @@ class HCTree {
   private:
     HCNode* root;            // the root of HCTree
     vector<HCNode*> leaves;  // a vector storing pointers to all leaf HCNodes
+    vector<string>* ofEncoding;
 
     void deleteAll(HCNode* root);
 

@@ -4,6 +4,7 @@
  * Author:
  */
 #include "HCTree.hpp"
+#include <stack>
 
 typedef std::priority_queue<HCNode*, std::vector<HCNode*>, HCNodePtrComp>
     node_heap;
@@ -11,6 +12,8 @@ typedef std::priority_queue<HCNode*, std::vector<HCNode*>, HCNodePtrComp>
 HCTree::HCTree() {
     this->root = nullptr;
     this->leaves = vector<HCNode*>(256);
+    auto newVec = new vector<string>(256);
+    this->ofEncoding = newVec;
 }
 
 /* TODO */
@@ -18,6 +21,8 @@ HCTree::~HCTree() {
     auto currentNode = this->root;
     deleteAll(currentNode);
     this->leaves.clear();
+    this->ofEncoding->clear();
+    delete this->ofEncoding;
 }
 
 /* TODO */
@@ -71,40 +76,36 @@ void HCTree::build(const vector<unsigned int>& freqs) {
 
 /* TODO */
 void HCTree::encode(byte symbol, ostream& out) const {
-    auto listOfChars = new vector<char>();
+    std::stack<unsigned char> ofSymbols;
     HCNode* ofLeaf = nullptr;
-    for (int i = 0; i < this->leaves.size(); i++) {
-        if ((unsigned char)i == symbol) {
-            ofLeaf = this->leaves.at(i);
-            break;
-        }
-    }
-    if (ofLeaf == nullptr) {
-        return;
-    }
-    while (1) {
-        auto parentOfLeaf = ofLeaf->p;
-        if (parentOfLeaf != NULL) {
-            if (ofLeaf == parentOfLeaf->c0) {
-                listOfChars->push_back('0');
+    ofLeaf = this->leaves.at(symbol);
+    if (ofEncoding->at((unsigned int)symbol).empty()) {
+        while (1) {
+            auto parentOfLeaf = ofLeaf->p;
+            if (parentOfLeaf != NULL) {
+                if (ofLeaf == parentOfLeaf->c0) {
+                    ofSymbols.push('0');
+                } else {
+                    ofSymbols.push('1');
+                }
+                ofLeaf = parentOfLeaf;
             } else {
-                listOfChars->push_back('1');
+                break;
             }
-            ofLeaf = parentOfLeaf;
-        } else {
-            break;
         }
-    }
-    if (listOfChars->size() == 0) {
-        return;
+        string ofCurrent = "";
+        ofCurrent.resize(ofSymbols.size());
+        int i = 0;
+        while (ofSymbols.size() != 0) {
+            ofCurrent.at(i) = ofSymbols.top();
+            ofSymbols.pop();
+            i++;
+        }
+        ofEncoding->at((unsigned int)symbol) = ofCurrent;
+        out << ofEncoding->at((unsigned int)symbol);
     } else {
-        for (int i = listOfChars->size() - 1; i >= 0; i--) {
-            char atIndex = listOfChars->at(i);
-            out << atIndex;
-        }
+        out << ofEncoding->at((unsigned int)symbol);
     }
-    ofLeaf = nullptr;
-    delete listOfChars;
 }
 
 /* TODO */
