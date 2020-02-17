@@ -6,6 +6,7 @@
 #ifndef BITOUTPUTSTREAM_HPP
 #define BITOUTPUTSTREAM_HPP
 
+#include <algorithm>
 #include <iostream>
 
 typedef unsigned char byte;
@@ -22,13 +23,20 @@ class BitOutputStream {
 
   public:
     /* TODO: add function header and implement */
-    explicit BitOutputStream(ostream& os, unsigned int bufSize) : out(os){};
+    explicit BitOutputStream(ostream& os, unsigned int bufSize) : out(os) {
+        this->buf = new char(bufSize);
+        fill(this->buf, this->buf + bufSize, 0);
+        this->bufSize = bufSize;
+        this->nbits = 0;
+    };
 
     /* TODO: add function header */
     void flush();
 
     /* TODO: add function header */
     void writeBit(unsigned int i);
+
+    ~BitOutputStream();
 };
 
 #endif
