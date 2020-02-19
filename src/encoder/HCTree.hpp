@@ -10,8 +10,8 @@
 #include <queue>
 #include <unordered_map>
 #include <vector>
-// #include "BitInputStream.hpp"
-// #include "BitOutputStream.hpp"
+#include "BitInputStream.hpp"
+#include "BitOutputStream.hpp"
 #include "HCNode.hpp"
 
 using namespace std;
@@ -36,13 +36,13 @@ class HCTree {
     void build(const vector<unsigned int>& freqs);
 
     /* TODO: add function header */
-    // void encode(byte symbol, BitOutputStream& out) const;
+    void encode(byte symbol, BitOutputStream& out) const;
 
     /* TODO: add function header */
     void encode(byte symbol, ostream& out) const;
 
     /* TODO: add function header */
-    // byte decode(BitInputStream& in) const;
+    byte decode(BitInputStream& in) const;
 
     /* TODO: add function header */
     byte decode(istream& in) const;

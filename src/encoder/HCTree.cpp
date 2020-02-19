@@ -72,7 +72,21 @@ void HCTree::build(const vector<unsigned int>& freqs) {
 }
 
 /* TODO */
-// void HCTree::encode(byte symbol, BitOutputStream& out) const {}
+void HCTree::encode(byte symbol, BitOutputStream& out) const {
+    HCNode* ofLeaf = this->leaves.at(symbol);
+    auto ofEncoding = new vector<unsigned int>();
+    while (ofLeaf->p != NULL) {
+        if (ofLeaf->p->c0 == ofLeaf) {
+            ofEncoding->push_back(0);
+        } else {
+            ofEncoding->push_back(1);
+        }
+        ofLeaf = ofLeaf->p;
+    }
+    for (int i = ofEncoding->size() - 1; i >= 0; i++) {
+        out.writeBit(ofEncoding->at(i));
+    }
+}
 
 /* TODO */
 void HCTree::encode(byte symbol, ostream& out) const {
@@ -109,7 +123,21 @@ void HCTree::encode(byte symbol, ostream& out) const {
 }
 
 /* TODO */
-// byte HCTree::decode(BitInputStream& in) const { return ' '; }
+byte HCTree::decode(BitInputStream& in) const {
+    auto currentNode = this->root;
+    while (1) {
+        auto currentBit = in.readBit();
+        if (currentNode->c0 == NULL && currentNode->c1 == NULL) {
+            break;
+        }
+        if (currentBit == '0') {
+            currentNode = currentNode->c0;
+        } else {
+            currentNode = currentNode->c1;
+        }
+    }
+    return currentNode->symbol;
+}
 
 /* TODO */
 byte HCTree::decode(istream& in) const {
