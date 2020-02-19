@@ -27,9 +27,9 @@ class BitInputStream {
 
   public:
     /* TODO: add function header and implement */
-    explicit BitInputStream(istream& is, unsigned int bufSize) : in(is) {
+    explicit BitInputStream(istream& is, unsigned int bufSize)
+        : in(is), buf(new char(bufSize)) {
         this->bufSize = bufSize;
-        this->buf = new char(bufSize);
         std::fill(this->buf, this->buf + bufSize, 0);
         this->nbits = 0;
         this->eofBit = false;
@@ -43,6 +43,8 @@ class BitInputStream {
 
     /* TODO: add function header */
     unsigned int readBit();
+
+    ~BitInputStream();
 };
 
 #endif

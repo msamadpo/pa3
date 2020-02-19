@@ -6,22 +6,14 @@
 #include "BitInputStream.hpp"
 
 /* TODO */
-void BitInputStream::fill() {
-    if (eof()) {
-        return;
-    }
-    this->in.read(this->buf, this->bufSize);
-    if (atEndOfFile()) {
-        this->eofBit = true;
-    }
-}
+void BitInputStream::fill() { this->in.read(this->buf, this->bufSize); }
 
 /* TODO */
 bool BitInputStream::atEndOfFile() {
     if (eof()) {
         return false;
     }
-    if (this->nbits == this->bufSize * 8 && (!this->in)) {
+    if (this->nbits == in.gcount() * 8 && (!this->in)) {
         return true;
     } else if (this->in.gcount() == 0 && (!this->in)) {
         return true;
@@ -35,19 +27,42 @@ bool BitInputStream::eof() { return eofBit; }
 
 /* TODO */
 unsigned int BitInputStream::readBit() {
+    if (this->nbits == 0 || this->nbits == this->bufSize * 8) {
+        this->fill();
+    }
+    if (atEndOfFile()) {
+        this->eofBit = true;
+        return 0;
+    } else if (this->nbits == this->bufSize * 8) {
+        this->nbits = 0;
+    }
     int indexOfArray = this->nbits / 8;
     int indexOfChar = (this->nbits + 1) % 8;
     if (this->nbits == (this->bufSize * 8) - 1) {
-        char atIndex = this->buf[indexOfArray];
+        unsigned char atIndex = this->buf[indexOfArray];
+        atIndex = atIndex << (8 - 1);
+        atIndex = atIndex >> (8 - 1);
         unsigned int ofIndex = atIndex && 1;
         this->nbits++;
-        this->fill();
         return ofIndex;
     } else {
-        char atIndex = this->buf[indexOfArray];
+        unsigned char atIndex = this->buf[indexOfArray];
+        if (indexOfChar == 0) {
+            atIndex = atIndex << (8 - 1);
+            atIndex = atIndex >> (8 - 1);
+            unsigned int ofIndex = atIndex && 1;
+            this->nbits++;
+            return ofIndex;
+        }
+        if (indexOfChar > 1) {
+            atIndex = atIndex << (indexOfChar - 1);
+            atIndex = atIndex >> (indexOfChar - 1);
+        }
         atIndex = atIndex >> (8 - indexOfChar);
         unsigned int ofIndex = atIndex && 1;
         this->nbits++;
         return ofIndex;
     }
 }
+
+BitInputStream::~BitInputStream() { delete[] this->buf; }
