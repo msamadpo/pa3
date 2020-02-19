@@ -7,9 +7,16 @@
 
 /* TODO */
 void BitOutputStream::flush() {
+    if (this->nbits == 0) {
+        return;
+    }
     int lastIndexOfCell = this->nbits / 8;
-    this->out.write(this->buf, lastIndexOfCell + 1);
+    if (lastIndexOfCell == 0) {
+        lastIndexOfCell++;
+    }
+    this->out.write(this->buf, lastIndexOfCell);
     fill(this->buf, this->buf + this->bufSize, 0);
+    this->nbits = 0;
 }
 
 /* TODO */
@@ -20,17 +27,19 @@ void BitOutputStream::writeBit(unsigned int i) {
     }
     if (this->nbits == (this->bufSize * 8)) {
         this->flush();
+        this->nbits = 0;
     }
     int filledCells = this->nbits / 8;
     int indexInCell = (this->nbits + 1) % 8;
-    char ofCell = this->buf[filledCells];
+    unsigned char ofCell = this->buf[filledCells];
     if (indexInCell == 0) {
         ofCell = ofCell + 1;
     } else {
         unsigned int ofInput = i;
-        ofInput << 8 - indexInCell;
+        ofInput = ofInput << 8 - indexInCell;
         ofCell = ofCell + ofInput;
     }
+    this->buf[filledCells] = ofCell;
     this->nbits++;
 }
 
