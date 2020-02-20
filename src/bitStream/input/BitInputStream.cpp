@@ -18,6 +18,9 @@ bool BitInputStream::atEndOfFile() {
     } else if (this->in.gcount() == 0 && (!this->in)) {
         return true;
     } else {
+        if (this->nbits == this->bufSize * 8) {
+            this->nbits = 0;
+        }
         return false;
     }
 }
@@ -33,8 +36,6 @@ unsigned int BitInputStream::readBit() {
     if (atEndOfFile()) {
         this->eofBit = true;
         return 0;
-    } else if (this->nbits == this->bufSize * 8) {
-        this->nbits = 0;
     }
     int indexOfArray = this->nbits / 8;
     int indexOfChar = (this->nbits + 1) % 8;
