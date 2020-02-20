@@ -27,7 +27,7 @@ void pseudoCompression(string inFileName, string outFileName) {
     ofInput.close();
     ofAllChars->build(ofChars);
     ofstream ofOutput;
-    ofOutput.open(outFileName, ios::trunc);
+    ofOutput.open(outFileName);
     for (int i = 0; i < ofChars.size(); i++) {
         unsigned int ofIndex = ofChars.at(i);
         ofOutput << ofIndex << endl;
@@ -43,10 +43,41 @@ void pseudoCompression(string inFileName, string outFileName) {
 }
 
 /* TODO: True compression with bitwise i/o and small header (final) */
-void trueCompression(string inFileName, string outFileName) {}
+void trueCompression(string inFileName, string outFileName) {
+    vector<unsigned int> ofChars(256);
+    HCTree* ofAllChars = new HCTree();
+    ifstream ofInput;
+    unsigned char nextChar;
+    int nextByte;
+    ofInput.open(inFileName, ios::binary);
+    while ((nextByte = ofInput.get()) != EOF) {
+        nextChar = (unsigned char)nextByte;
+        ofChars.at(nextChar)++;
+    }
+    ofInput.close();
+    ofstream ofOutput;
+    ofOutput.open(outFileName);
+    for (int i = 0; i < ofChars.size(); i++) {
+        unsigned int ofIndex = ofChars.at(i);
+        ofOutput << ofIndex << endl;
+    }
+    ofInput.open(inFileName, ios::binary);
+    BitOutputStream bos(ofOutput, 4000);
+    ofAllChars->build(ofChars);
+    while ((nextByte = ofInput.get()) != EOF) {
+        nextChar = (unsigned char)nextByte;
+        ofAllChars->encode(nextChar, bos);
+        // ofAllChars->encode(nextChar, ofOutput);
+    }
+    bos.flush();
+    ofInput.close();
+    ofOutput.close();
+    delete ofAllChars;
+}
 
 /* TODO: Main program that runs the compress */
 int main(int argc, char* argv[]) {
+    /*
     cxxopts::Options options("./compress",
                              "Compresses files using Huffman Encoding");
     options.positional_help("./path_to_input_file ./path_to_output_file");
@@ -78,5 +109,7 @@ int main(int argc, char* argv[]) {
         return 0;
     }
     pseudoCompression(ofInputName, ofOutputName);
+    */
+    trueCompression(argv[1], argv[2]);
     return 0;
 }
