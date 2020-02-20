@@ -6,6 +6,7 @@
 #include <fstream>
 #include <iostream>
 
+#include <algorithm>
 #include "FileUtils.hpp"
 #include "HCNode.hpp"
 #include "HCTree.hpp"
@@ -49,35 +50,52 @@ void trueCompression(string inFileName, string outFileName) {
     ifstream ofInput;
     unsigned char nextChar;
     int nextByte;
+    unsigned int totalChars = 0;
+    unsigned char newLineRules = 0;
     ofInput.open(inFileName, ios::binary);
     while ((nextByte = ofInput.get()) != EOF) {
         nextChar = (unsigned char)nextByte;
         ofChars.at(nextChar)++;
+        totalChars++;
     }
     ofInput.close();
     ofstream ofOutput;
     ofOutput.open(outFileName);
-    for (int i = 0; i < ofChars.size(); i++) {
-        unsigned int ofIndex = ofChars.at(i);
-        ofOutput << ofIndex << endl;
+    ofOutput << totalChars << endl;
+    ofAllChars->build(ofChars);
+    auto ofHeader = new vector<char>();
+    ofAllChars->recursiveIteration(ofHeader, nullptr);
+    std::reverse(ofHeader->begin(), ofHeader->end());
+    for (int i = 0; i < ofHeader->size(); i++) {
+        if (ofHeader->at(i) == '\n') {
+            if (i == ofHeader->size() - 1) {
+                newLineRules = newLineRules + 0x01;
+            } else {
+                newLineRules = newLineRules + 0x02;
+            }
+        }
     }
+    ofOutput.put(newLineRules);
+    ofOutput.put('\n');
+    for (int i = 0; i < ofHeader->size(); i++) {
+        ofOutput.put(ofHeader->at(i));
+    }
+    ofOutput.put('\n');
     ofInput.open(inFileName, ios::binary);
     BitOutputStream bos(ofOutput, 4000);
-    ofAllChars->build(ofChars);
     while ((nextByte = ofInput.get()) != EOF) {
         nextChar = (unsigned char)nextByte;
         ofAllChars->encode(nextChar, bos);
-        // ofAllChars->encode(nextChar, ofOutput);
     }
     bos.flush();
     ofInput.close();
     ofOutput.close();
     delete ofAllChars;
+    delete ofHeader;
 }
 
 /* TODO: Main program that runs the compress */
 int main(int argc, char* argv[]) {
-    /*
     cxxopts::Options options("./compress",
                              "Compresses files using Huffman Encoding");
     options.positional_help("./path_to_input_file ./path_to_output_file");
@@ -100,16 +118,24 @@ int main(int argc, char* argv[]) {
         return 0;
     }
 
-    string ofInputName = argv[2];
-    string ofOutputName = argv[3];
-    if (FileUtils::isEmptyFile(ofInputName)) {
-        ofstream ofOutput;
-        ofOutput.open(ofOutputName, ios::trunc);
-        ofOutput.close();
-        return 0;
+    if (argv[3] == NULL) {
+        if (FileUtils::isEmptyFile(argv[1])) {
+            ofstream ofOutput;
+            ofOutput.open(argv[2], ios::trunc);
+            ofOutput.close();
+            return 0;
+        }
+        trueCompression(argv[1], argv[2]);
+    } else {
+        string ofInputName = argv[2];
+        string ofOutputName = argv[3];
+        if (FileUtils::isEmptyFile(ofInputName)) {
+            ofstream ofOutput;
+            ofOutput.open(ofOutputName, ios::trunc);
+            ofOutput.close();
+            return 0;
+        }
+        pseudoCompression(ofInputName, ofOutputName);
     }
-    pseudoCompression(ofInputName, ofOutputName);
-    */
-    trueCompression(argv[1], argv[2]);
     return 0;
 }

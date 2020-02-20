@@ -37,35 +37,47 @@ void pseudoDecompression(string inFileName, string outFileName) {
 
 /* TODO: True decompression with bitwise i/o and small header (final) */
 void trueDecompression(string inFileName, string outFileName) {
-    vector<unsigned int> ofChars(256);
     HCTree* ofAllChars = new HCTree();
+    vector<char>* ofHeader = new vector<char>();
     ifstream ofInput;
-    unsigned char nextChar;
     int nextByte;
     unsigned int totalChars = 0;
     ofInput.open(inFileName, ios::binary);
-    for (int i = 0; i < 256; i++) {
-        ofInput >> ofChars.at(i);
-        totalChars += ofChars.at(i);
+    ofInput >> totalChars;
+    ofInput.get();
+    unsigned int ofNewLineRules = ofInput.get();
+    ofInput.get();
+    unsigned char nextChar = ' ';
+    while ((nextChar = ofInput.get()) != '\n') {
+        ofHeader->push_back(nextChar);
     }
-    ofAllChars->build(ofChars);
+    if (ofNewLineRules > 0) {
+        if (ofNewLineRules == 2) {
+            ofHeader->push_back(nextChar);
+            while ((nextChar = ofInput.get()) != '\n') {
+                ofHeader->push_back(nextChar);
+            }
+        } else {
+            ofHeader->push_back(nextChar);
+            ofInput.get();
+        }
+    }
+    ofAllChars->recursiveBuild(ofHeader, nullptr);
     ofstream ofOutput;
     ofOutput.open(outFileName);
-    ofInput.get();
     BitInputStream bs(ofInput, 4000);
     while (totalChars > 0) {
         ofOutput << ofAllChars->decode(bs);
         totalChars--;
-        // ofOutput << ofAllChars->decode(ofInput);
     }
     ofInput.close();
     ofOutput.close();
     delete ofAllChars;
+    delete ofHeader;
 }
 
 /* TODO: Main program that runs the uncompress */
 int main(int argc, char* argv[]) {
-    /*
     cxxopts::Options options("./uncompress",
                              "Uncompresses files using Huffman Encoding");
     options.positional_help("./path_to_input_file ./path_to_output_file");
@@ -87,15 +99,25 @@ int main(int argc, char* argv[]) {
         cout << options.help({""}) << std::endl;
         return 0;
     }
-    string ofInputFile = argv[2];
-    string ofOutputFile = argv[3];
-    if (FileUtils::isEmptyFile(ofInputFile)) {
-        ofstream ofOutput;
-        ofOutput.open(ofOutputFile, ios::trunc);
-        ofOutput.close();
-        return 0;
+
+    if (argv[3] == NULL) {
+        if (FileUtils::isEmptyFile(argv[1])) {
+            ofstream ofOutput;
+            ofOutput.open(argv[2], ios::trunc);
+            ofOutput.close();
+            return 0;
+        }
+        trueDecompression(argv[1], argv[2]);
+    } else {
+        string ofInputName = argv[2];
+        string ofOutputName = argv[3];
+        if (FileUtils::isEmptyFile(ofInputName)) {
+            ofstream ofOutput;
+            ofOutput.open(ofOutputName, ios::trunc);
+            ofOutput.close();
+            return 0;
+        }
+        pseudoDecompression(ofInputName, ofOutputName);
     }
-    */
-    trueDecompression(argv[1], argv[2]);
     return 0;
 }
