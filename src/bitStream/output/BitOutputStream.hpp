@@ -24,9 +24,9 @@ class BitOutputStream {
   public:
     /* TODO: add function header and implement */
     explicit BitOutputStream(ostream& os, unsigned int bufSize) : out(os) {
-        this->buf = new char(bufSize);
-        fill(this->buf, this->buf + bufSize, 0);
         this->bufSize = bufSize;
+        this->buf = new char[bufSize];
+        fill(this->buf, this->buf + this->bufSize, 0);
         this->nbits = 0;
     };
 
