@@ -167,3 +167,90 @@ void HCTree::deleteAll(HCNode* root) {
     }
     delete root;
 }
+
+void HCTree::recursiveIteration(vector<char>* ofInfo, HCNode* ofCurrent) {
+    if (ofCurrent == NULL) {
+        ofCurrent = this->root;
+    }
+    unsigned char ofRules = 0;
+    bool addLeft = false;
+    bool addRight = false;
+    if (ofCurrent->c1 != NULL) {
+        if (ofCurrent->c1->c0 != NULL) {
+            ofRules = ofRules + 0x04;
+            recursiveIteration(ofInfo, ofCurrent->c1);
+        } else {
+            addRight = true;
+            ofRules = ofRules + 0x01;
+        }
+    }
+    if (ofCurrent->c0 != NULL) {
+        if (ofCurrent->c0->c0 != NULL) {
+            ofRules = ofRules + 0x08;
+            recursiveIteration(ofInfo, ofCurrent->c0);
+        } else {
+            addLeft = true;
+            ofRules = ofRules + 0x02;
+        }
+    }
+
+    if (addRight) {
+        ofInfo->push_back(ofCurrent->c1->symbol);
+    }
+    if (addLeft) {
+        ofInfo->push_back(ofCurrent->c0->symbol);
+    }
+    ofInfo->push_back(ofRules);
+}
+
+void HCTree::recursiveBuild(vector<char>* ofHeader, HCNode* ofCurrent) {
+    if (ofHeader->size() == 0) {
+        return;
+    }
+    if (ofCurrent == NULL) {
+        ofCurrent = new HCNode(0, 0);
+        this->root = ofCurrent;
+    }
+    unsigned int ofRules = ofHeader->at(0);
+    bool hasLeft;
+    bool recurseLeft = false;
+    bool recurseRight = false;
+    ofHeader->erase(ofHeader->begin());
+    if (ofRules >= 8) {
+        ofRules -= 8;
+        hasLeft = true;
+        recurseLeft = true;
+    }
+    if (ofRules >= 4) {
+        ofRules -= 4;
+        recurseRight = true;
+    }
+    if (ofRules >= 2) {
+        ofRules -= 2;
+        hasLeft = true;
+        ofCurrent->c0 = new HCNode(0, ofHeader->at(0));
+        ofCurrent->c0->p = ofCurrent;
+        ofHeader->erase(ofHeader->begin());
+    }
+    if (ofRules >= 1) {
+        ofCurrent->c1 = new HCNode(0, ofHeader->at(0));
+        ofCurrent->c1->p = ofCurrent;
+        ofHeader->erase(ofHeader->begin());
+    }
+
+    if (recurseLeft) {
+        HCNode* ofLeft = new HCNode(0, 0);
+        ofLeft->p = ofCurrent;
+        ofCurrent->c0 = ofLeft;
+        recursiveBuild(ofHeader, ofLeft);
+    }
+    if (recurseRight) {
+        HCNode* ofRight = new HCNode(0, 0);
+        ofRight->p = ofCurrent;
+        ofCurrent->c1 = ofRight;
+        recursiveBuild(ofHeader, ofRight);
+    }
+    if (hasLeft) {
+        ofCurrent->symbol = ofCurrent->c0->symbol;
+    }
+}

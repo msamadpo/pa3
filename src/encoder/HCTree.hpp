@@ -21,9 +21,11 @@ class HCTree {
   private:
     HCNode* root;            // the root of HCTree
     vector<HCNode*> leaves;  // a vector storing pointers to all leaf HCNodes
-    vector<string>* ofEncoding;
+    vector<string>* ofEncoding;  // a vector storing the encodings of characters
 
     void deleteAll(HCNode* root);
+
+    void recursiveBuild();
 
   public:
     /* TODO: add function header and implement */
@@ -46,6 +48,10 @@ class HCTree {
 
     /* TODO: add function header */
     byte decode(istream& in) const;
+
+    void recursiveIteration(vector<char>* ofInfo, HCNode* ofCurrent);
+
+    void recursiveBuild(vector<char>* ofHeader, HCNode* ofCurrent);
 };
 
 #endif  // HCTREE_HPP
