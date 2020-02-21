@@ -1,7 +1,16 @@
 /**
- * TODO: file header
+ * Authors: Matthew Lund and Mohammad Javid
+ * Contact info: mtlund@ucsd.edu (Matthew),
+ *               Msamadpo@ucsd.edu (Mohammad)
  *
- * Author:
+ * Sources used:
+ *  1) Stepik: Introduction to Data Structures (Fall 2016)
+ *     by Moshiri and Izhikevich (available at stepik.org)
+ *
+ * Description of File:
+ *  This file defines the neccessary methods to create a
+ *  a node to build a huffman tree. It also contains
+ *  a comparator to use inside a heap-like data structure.
  */
 #ifndef HCNODE_HPP
 #define HCNODE_HPP
@@ -40,7 +49,13 @@ ostream& operator<<(ostream& stm, const HCNode& n) {
  * has higher prioruty.
  */
 struct HCNodePtrComp {
-    /* TODO */
+    /*
+    / Overloads the comparator of heap.
+    /
+    / Those with smaller frequencies have higher priority.
+    / If frequency is the same, the character with the larger
+    / ascii value has higher priority.
+    */
     bool operator()(HCNode*& lhs, HCNode*& rhs) const {
         if (lhs->count != rhs->count) {
             return lhs->count > rhs->count;
