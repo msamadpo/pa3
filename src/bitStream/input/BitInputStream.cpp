@@ -34,12 +34,13 @@ bool BitInputStream::atEndOfFile() {
     if (eof()) {
         return false;
     }
-
+    // check if the buffer and input stream was red.
     if (this->nbits == in.gcount() * SIZE_OF_CHAR && (!this->in)) {
         return true;
     } else if (this->in.gcount() == 0 && (!this->in)) {
         return true;
     } else {
+        // Resets the buffer to allow for more input.
         if (this->nbits == this->bufSize * SIZE_OF_CHAR) {
             this->nbits = 0;
         }
@@ -92,16 +93,23 @@ bool BitInputStream::eof() { return eofBit; }
  *  1) int - representing the bit at postion nbit.
  */
 unsigned int BitInputStream::readBit() {
+    // Checks if the buffer is fill or if the buffer is empty.
     if (this->nbits == 0 || this->nbits == this->bufSize * SIZE_OF_CHAR) {
+        // Fills buffer.
         this->fill();
     }
+    // Checks if input has been proccessed and buffer was read.
     if (atEndOfFile()) {
         this->eofBit = true;
         return 0;
     }
+    // Index of the char where nbit is.
     int indexOfArray = this->nbits / SIZE_OF_CHAR;
+    // Index of the position of nbit
     int indexOfChar = (this->nbits + 1) % SIZE_OF_CHAR;
+    // If there is only one more bit to read
     if (this->nbits == (this->bufSize * SIZE_OF_CHAR) - 1) {
+        // Reads the bit and returns said bit
         unsigned char atIndex = this->buf[indexOfArray];
         atIndex = atIndex << (SIZE_OF_CHAR - 1);
         atIndex = atIndex >> (SIZE_OF_CHAR - 1);
@@ -109,7 +117,9 @@ unsigned int BitInputStream::readBit() {
         this->nbits++;
         return ofIndex;
     } else {
+        // Gets char where nbit is
         unsigned char atIndex = this->buf[indexOfArray];
+        // If nbit is the first bit in the char
         if (indexOfChar == 0) {
             atIndex = atIndex << (SIZE_OF_CHAR - 1);
             atIndex = atIndex >> (SIZE_OF_CHAR - 1);
@@ -117,10 +127,12 @@ unsigned int BitInputStream::readBit() {
             this->nbits++;
             return ofIndex;
         }
+        // Shifts the nbit to access it true value.
         if (indexOfChar > 1) {
             atIndex = atIndex << (indexOfChar - 1);
             atIndex = atIndex >> (indexOfChar - 1);
         }
+        // Shifts nbit to its original position.
         atIndex = atIndex >> (SIZE_OF_CHAR - indexOfChar);
         unsigned int ofIndex = atIndex && 1;
         this->nbits++;
